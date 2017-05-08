@@ -14,6 +14,8 @@ public class SecureAES
         return;
     }
 
+    Checksums CS = new Checksums();
+
     private string lastError = "";
 
     public string CreateRandomPassword(int length)
@@ -49,7 +51,7 @@ public class SecureAES
 
     public void AES_Encrypt(string inputFile, string password, string outputName = null)
     {
-        byte[] hash = getSHA1(inputFile);
+        byte[] hash = CS.getSHA1(inputFile);
         byte[] salt = GenerateRandomSalt();
         if (outputName == null)
         {
@@ -165,7 +167,7 @@ public class SecureAES
                 fsCrypt.Close();
             }
 
-            if (convertHashToString(hash) != convertHashToString(getSHA1(outputName)))
+            if (CS.convertHashToString(hash) != CS.convertHashToString(CS.getSHA1(outputName)))
             {
                 File.Delete(outputName);
                 lastError = "decryptIncorrectPassword";
@@ -182,44 +184,5 @@ public class SecureAES
         {
             return false;
         }
-    }
-
-    public string convertHashToString(byte[] hash)
-    {
-        return BitConverter.ToString(hash).Replace("-", "");
-    }
-
-    public bool compareHash(byte[] firstHash, byte[] secondHash)
-    {
-        if (convertHashToString(firstHash) == convertHashToString(secondHash)) return true;
-        else return false;
-    }
-
-    public byte[] getMD5(string inputFile)
-    {
-        using (var md5 = MD5.Create())
-        using (var stream = File.OpenRead(inputFile))
-            return md5.ComputeHash(stream);
-    }
-
-    public byte[] getSHA1(string inputFile)
-    {
-        using (var sha1 = SHA1.Create())
-        using (var stream = File.OpenRead(inputFile))
-            return sha1.ComputeHash(stream);
-    }
-
-    public byte[] getSHA256(string inputFile)
-    {
-        using (var sha256 = SHA256.Create())
-        using (var stream = File.OpenRead(inputFile))
-            return sha256.ComputeHash(stream);
-    }
-
-    public byte[] getSHA512(string inputFile)
-    {
-        using (var sha512 = SHA512.Create())
-        using (var stream = File.OpenRead(inputFile))
-            return sha512.ComputeHash(stream);
     }
 }
